@@ -1,6 +1,7 @@
 package djma;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -35,7 +36,14 @@ public class App {
         var p = new Person("John", 42);
         System.out.println("Hello %s!".formatted(p.name()));
 
-        Server serverSample = new Server(8000);
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            System.out.format("%s=%s%n",
+                    envName,
+                    env.get(envName));
+        }
+
+        Server serverSample = new Server(env.get("PORT") != null ? Integer.parseInt(env.get("PORT")) : 8080);
         SampleJetty sampleJetty = new App().new SampleJetty();
         try {
             serverSample.setHandler(sampleJetty);
