@@ -43,6 +43,9 @@ public class App {
                     env.get(envName));
         }
 
+        // var svc = new TwilioService();
+        // svc.sendSMS("MY_NUMBER", "Hello from Java 16!");
+
         Server serverSample = new Server(env.get("PORT") != null ? Integer.parseInt(env.get("PORT")) : 8080);
         SampleJetty sampleJetty = new App().new SampleJetty();
         try {
@@ -52,5 +55,6 @@ public class App {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 }
