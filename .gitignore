@@ -24,3 +24,12 @@ hs_err_pid*
 
 # Java Maven build
 target/
+
+# Jooq db credentials
+jooq-config.xml
+
+.env
+
+# Google OAuth2 credentials
+/tokens
+client_secret.json

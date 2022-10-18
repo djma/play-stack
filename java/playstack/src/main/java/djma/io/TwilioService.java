@@ -1,16 +1,20 @@
-package djma;
+package djma.io;
 
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
+import djma.common.Env;
+
 public class TwilioService {
-    String myNumber = System.getenv("TWILIO_MY_NUMBER");
+    final String myNumber;
 
     public TwilioService() {
+        Env env = Env.get();
         Twilio.init(
-                System.getenv("TWILIO_ACCOUNT_SID"),
-                System.getenv("TWILIO_AUTH_TOKEN"));
+                env.get("TWILIO_ACCOUNT_SID"),
+                env.get("TWILIO_AUTH_TOKEN"));
+        this.myNumber = env.get("TWILIO_MY_NUMBER");
     }
 
     public void sendSMS(String to, String message) {

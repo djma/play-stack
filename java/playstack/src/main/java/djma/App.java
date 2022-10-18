@@ -1,12 +1,13 @@
 package djma;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
+import djma.common.Env;
+import djma.io.ContactSyncService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,15 +34,9 @@ public class App {
     }
 
     public static void main(String[] args) {
-        var p = new Person("John", 42);
-        System.out.println("Hello %s!".formatted(p.name()));
+        ContactSyncService.get().loop();
 
-        Map<String, String> env = System.getenv();
-        for (String envName : env.keySet()) {
-            System.out.format("%s=%s%n",
-                    envName,
-                    env.get(envName));
-        }
+        Env env = Env.get();
 
         // var svc = new TwilioService();
         // svc.sendSMS("MY_NUMBER", "Hello from Java 16!");
