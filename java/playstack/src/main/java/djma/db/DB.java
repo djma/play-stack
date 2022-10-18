@@ -16,7 +16,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import djma.common.Env;
 
-import static djma.db.jooq.tables.Contact.CONTACT;
+import static djma.db.generated.tables.Contact.CONTACT;
 
 public class DB {
     private static DB INSTANCE = null;

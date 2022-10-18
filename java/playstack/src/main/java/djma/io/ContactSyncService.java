@@ -27,7 +27,7 @@ import djma.db.KeyValStoreService;
 
 import static djma.common.Common.ifNull;
 import static djma.common.Common.optChain;
-import static djma.db.jooq.tables.Contact.CONTACT;
+import static djma.db.generated.tables.Contact.CONTACT;
 
 /**
  * Syncs contacts from Google People API to the database.

@@ -1,6 +1,6 @@
 package djma.db;
 
-import static djma.db.jooq.tables.Kvstore.KVSTORE;
+import static djma.db.generated.tables.Kvstore.KVSTORE;
 
 /**
  * A simple persistent key-value store service backed by postgres.
