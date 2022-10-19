@@ -36,6 +36,7 @@ public class KeyValStoreService {
             return ctx.insertInto(KVSTORE, KVSTORE.KEY, KVSTORE.VALUE)
                     .values(key, value)
                     .onDuplicateKeyUpdate()
+                    // .onConflict(KVSTORE.KEY).doUpdate()
                     .set(KVSTORE.VALUE, value)
                     .execute();
         });
