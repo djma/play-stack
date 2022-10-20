@@ -36,4 +36,12 @@ public class Env {
     public String get(String key) {
         return env.get(key);
     }
+
+    public int getInt(String key) {
+        return Integer.parseInt(env.get(key));
+    }
+
+    public int getInt(String key, int defaultValue) {
+        return env.containsKey(key) ? Integer.parseInt(env.get(key)) : defaultValue;
+    }
 }
