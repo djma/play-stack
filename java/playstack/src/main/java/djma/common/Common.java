@@ -3,8 +3,11 @@ package djma.common;
 import java.util.List;
 import java.util.function.Function;
 
+import org.jooq.impl.TableRecordImpl;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -39,6 +42,30 @@ public class Common {
              * https://github.com/FasterXML/jackson-databind/issues/1498
              */
             .registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+
+    /**
+     * Json-ifies a jooq table record.
+     */
+    public static <R extends TableRecordImpl<R>> String recordToJson(R record) {
+        try {
+            return simpleObjectMapper.writeValueAsString(record.intoMap());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Converts a json into a jooq table record.
+     */
+    public static <R extends TableRecordImpl<R>> R jsonToRecord(String json, Class<R> recordClass) {
+        try {
+            return simpleObjectMapper.readValue(json, recordClass);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public static <T> T ifNull(T val, T defaultVal) {
         return val == null ? defaultVal : val;

@@ -126,6 +126,12 @@
       <artifactId>dotenv-java</artifactId>
       <version>2.2.4</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.graphql-java/graphql-java -->
+    <dependency>
+      <groupId>com.graphql-java</groupId>
+      <artifactId>graphql-java</artifactId>
+      <version>19.2</version>
+    </dependency>
   </dependencies>
 
   <build>

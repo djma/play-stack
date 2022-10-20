@@ -24,6 +24,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import djma.common.Env;
 import djma.db.DB;
 import djma.db.KeyValStoreService;
+import djma.db.generated.tables.records.ContactRecord;
 
 import static djma.common.Common.ifNull;
 import static djma.common.Common.optChain;
@@ -156,27 +157,23 @@ public class ContactSyncService {
             });
         } else {
             // Handle changed person
-            Contact c = personToContact(person);
+            ContactRecord c = personToContactRecord(person);
             System.out.println(c.toString());
             db.run(ctx -> {
-                return ctx.insertInto(CONTACT, CONTACT.RESOURCENAME, CONTACT.NAME, CONTACT.EMAIL, CONTACT.PHONE)
-                        .values(c.resourceName(), c.name(), c.email(), c.phone())
+                return ctx.insertInto(CONTACT)
+                        .set(c)
                         .onDuplicateKeyUpdate()
-                        .set(CONTACT.NAME, c.name())
-                        .set(CONTACT.EMAIL, c.email())
-                        .set(CONTACT.PHONE, c.phone())
+                        .set(c)
                         .execute();
             });
         }
     }
 
-    private static Contact personToContact(Person person) {
-        return new Contact(
+    private static ContactRecord personToContactRecord(Person person) {
+        return new ContactRecord(
                 person.getResourceName(),
                 optChain(person.getNames(), names -> names.get(0).getDisplayName()),
                 optChain(person.getEmailAddresses(), emails -> emails.get(0).getValue()),
-                optChain(person.getPhoneNumbers(), phones -> phones.get(0).getValue()),
-                optChain(person.getEmailAddresses(), false, emails -> emails.size() > 1),
-                optChain(person.getPhoneNumbers(), false, phones -> phones.size() > 1));
+                optChain(person.getPhoneNumbers(), phones -> phones.get(0).getValue()));
     }
 }

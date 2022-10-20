@@ -27,6 +27,7 @@ public class App {
 
         ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(SampleServlet.class, "/*");
+        handler.addServletWithMapping(GraphQLServlet.class, "/gql/*");
         try {
             server.setHandler(handler);
             server.start();
