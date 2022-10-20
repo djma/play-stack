@@ -70,6 +70,15 @@ public class DB {
         }
     }
 
+    public DSLContext getDSLContext() {
+        try (Connection conn = this.source.getConnection()) {
+            return DSL.using(conn, SQLDialect.POSTGRES);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void main(String[] args) throws SQLException {
         DB db = DB.get();
 

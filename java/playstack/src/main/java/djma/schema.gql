@@ -1,0 +1,12 @@
+type Query {
+  hello: String
+  contacts: [Contact!]!
+  contactsRaw: String
+}
+
+type Contact {
+  resourcename: ID
+  name: String
+  email: String
+  phone: String
+}
