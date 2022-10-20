@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class GraphQLServlet extends HttpServlet {
     GraphQL graphQL;
-    private DB db = DB.get();
+    private final DB db = DB.get();
 
     public GraphQLServlet() throws IOException {
         super();
@@ -35,16 +35,13 @@ public class GraphQLServlet extends HttpServlet {
         SchemaParser schemaParser = new SchemaParser();
         TypeDefinitionRegistry typeDefinitionRegistry = schemaParser.parse(schema);
 
-        StaticDataFetcher fooDF = new StaticDataFetcher(
+        StaticDataFetcher testTableDataFetcher = new StaticDataFetcher(
                 db.run(ctx -> ctx.selectFrom("contact").limit(2).fetchInto(ContactRecord.class)));
 
         RuntimeWiring runtimeWiring = newRuntimeWiring()
-                .type("Query", builder -> {
-                    return builder
-                            .dataFetcher("hello", new StaticDataFetcher("world"))
-                            .dataFetcher("contacts", fooDF)
-                            .dataFetcher("contactsRaw", fooDF);
-                })
+                .type("Query", builder -> builder
+                        .dataFetcher("hello", new StaticDataFetcher("world"))
+                        .dataFetcher("contacts", testTableDataFetcher))
                 .build();
 
         SchemaGenerator schemaGenerator = new SchemaGenerator();
@@ -67,7 +64,7 @@ public class GraphQLServlet extends HttpServlet {
                 .operationName(operationName)
                 .variables(variables).build();
 
-        ExecutionResult executionResult = graphQL.execute(input);
+        ExecutionResult executionResult = this.graphQL.execute(input);
 
         resp.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         byte[] respBytes = simpleObjectMapper.writeValueAsBytes(executionResult.toSpecification());
