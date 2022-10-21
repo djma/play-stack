@@ -9,6 +9,10 @@ import java.util.Map;
 
 import org.apache.http.entity.ContentType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import djma.common.Env;
 import djma.db.DB;
 import djma.db.generated.tables.records.ContactRecord;
 import graphql.ExecutionInput;
@@ -27,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class GraphQLServlet extends HttpServlet {
     GraphQL graphQL;
     private final DB db = DB.get();
+    private final Env env = Env.get();
 
     public GraphQLServlet() throws IOException {
         super();
@@ -51,7 +56,35 @@ public class GraphQLServlet extends HttpServlet {
     }
 
     @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (env.isProd()) {
+            resp.setHeader("Access-Control-Allow-Origin", "https://play-stack.vercel.app");
+        } else {
+            resp.setHeader("Access-Control-Allow-Origin", "localhost:8000");
+        }
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", req.getHeader("Access-Control-Request-Headers"));
+        resp.setHeader("Access-Control-Max-Age", "3600");
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
+        resp.setStatus(200);
+    }
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        doGql(req, resp);
+    }
+
+    private void doGql(HttpServletRequest req, HttpServletResponse resp)
+            throws JsonProcessingException, JsonMappingException, IOException {
+        if (env.isProd()) {
+            resp.setHeader("Access-Control-Allow-Origin", "https://play-stack.vercel.app");
+        } else {
+            resp.setHeader("Access-Control-Allow-Origin", "localhost:8000");
+        }
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", req.getHeader("Access-Control-Request-Headers"));
+        resp.setStatus(204);
+
         String query = req.getParameter("query");
         String operationName = req.getParameter("operationName");
         @SuppressWarnings("unchecked")
@@ -72,7 +105,8 @@ public class GraphQLServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws JsonProcessingException, JsonMappingException, IOException {
+        doGql(req, resp);
     }
 }

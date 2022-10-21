@@ -1,7 +1,19 @@
 import "./Main.css";
 
 import * as React from "react";
-import { useMemo } from "react";
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  gql,
+} from "@apollo/client";
+
+const client = new ApolloClient({
+  // uri: "https://play-stack.herokuapp.com/gql",
+  uri: "http://localhost:8080/gql",
+  // uri: "/gql",
+  cache: new InMemoryCache(),
+});
 
 export default function Main() {
   return (
@@ -40,6 +52,19 @@ export class HelloWorldDisplay extends React.PureComponent<Props> {
   };
 
   render() {
+    client
+      .query({
+        query: gql`
+          query contacts {
+            resourcename
+            name
+            phone
+            email
+          }
+        `,
+      })
+      .then((result) => console.log(result));
+
     return (
       <main>
         <h1>This is H1</h1>

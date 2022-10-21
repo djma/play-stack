@@ -2,6 +2,8 @@ package djma;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
@@ -28,6 +30,11 @@ public class App {
         ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(SampleServlet.class, "/*");
         handler.addServletWithMapping(GraphQLServlet.class, "/gql/*");
+
+        FilterHolder filterHolder = new FilterHolder(new CrossOriginFilter());
+        filterHolder.setInitParameter("allowedOrigins", "localhost:8000");
+        filterHolder.setInitParameter("allowedMethods", "GET, POST");
+        handler.addFilter(null);
         try {
             server.setHandler(handler);
             server.start();
