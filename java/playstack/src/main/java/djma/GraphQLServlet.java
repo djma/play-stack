@@ -4,11 +4,15 @@ import static djma.common.Common.simpleObjectMapper;
 import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.http.entity.ContentType;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+import djma.common.Env;
 import djma.db.DB;
 import djma.db.generated.tables.records.ContactRecord;
 import graphql.ExecutionInput;
@@ -27,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class GraphQLServlet extends HttpServlet {
     GraphQL graphQL;
     private final DB db = DB.get();
+    private final Env env = Env.get();
 
     public GraphQLServlet() throws IOException {
         super();
@@ -50,14 +55,46 @@ public class GraphQLServlet extends HttpServlet {
         this.graphQL = GraphQL.newGraphQL(graphQLSchema).build();
     }
 
+    private void setAccessControl(HttpServletResponse resp) {
+        if (env.isProd()) {
+            resp.setHeader("Access-Control-Allow-Origin", "https://play-stack.vercel.app");
+            resp.setHeader("Access-Control-Request-Headers", "https://play-stack.vercel.app");
+        } else {
+            resp.setHeader("Access-Control-Allow-Origin", "*");
+            resp.setHeader("Access-Control-Request-Headers", "*");
+        }
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        setAccessControl(resp);
+        resp.setStatus(200);
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String query = req.getParameter("query");
-        String operationName = req.getParameter("operationName");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> variables = req.getParameter("variables") != null
-                ? simpleObjectMapper.readValue(req.getParameter("variables"), HashMap.class)
-                : new HashMap<String, Object>();
+        setAccessControl(resp);
+        doGql(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws JsonProcessingException, JsonMappingException, IOException {
+        setAccessControl(resp);
+        doGql(req, resp);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void doGql(HttpServletRequest req, HttpServletResponse resp)
+            throws JsonProcessingException, JsonMappingException, IOException {
+        String reqBody = req.getReader().lines().collect(Collectors.joining());
+        Map<String, Object> gqlRequest = simpleObjectMapper.readValue(reqBody, Map.class);
+        String query = gqlRequest.get("query").toString();
+        String operationName = gqlRequest.get("operationName").toString();
+
+        Map<String, Object> variables = (Map<String, Object>) gqlRequest.get("variables");
 
         ExecutionInput input = ExecutionInput.newExecutionInput()
                 .query(query)
@@ -69,10 +106,5 @@ public class GraphQLServlet extends HttpServlet {
         resp.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         byte[] respBytes = simpleObjectMapper.writeValueAsBytes(executionResult.toSpecification());
         resp.getOutputStream().write(respBytes);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-
     }
 }

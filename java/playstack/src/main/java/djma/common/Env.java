@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import io.github.cdimascio.dotenv.DotenvBuilder;
 
 /**
  * Lightly handles local and remote environment variables. Local environment
@@ -22,12 +23,13 @@ public class Env {
         if (INSTANCE == null) {
             INSTANCE = new Env();
 
-            System.getenv().forEach((k, v) -> {
-                INSTANCE.env.put(k, v);
-            });
+            INSTANCE.env.put("isProd", "true");
+            INSTANCE.env.putAll(System.getenv());
 
-            Dotenv.configure().ignoreIfMissing().load().entries().forEach((e) -> {
+            DotenvBuilder configure = Dotenv.configure();
+            configure.ignoreIfMissing().load().entries().forEach((e) -> {
                 INSTANCE.env.put(e.getKey(), e.getValue());
+                INSTANCE.env.put("isProd", "false");
             });
         }
         return INSTANCE;
@@ -43,5 +45,9 @@ public class Env {
 
     public int getInt(String key, int defaultValue) {
         return env.containsKey(key) ? Integer.parseInt(env.get(key)) : defaultValue;
+    }
+
+    public boolean isProd() {
+        return env.get("isProd").equals("true");
     }
 }

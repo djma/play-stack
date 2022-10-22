@@ -1,7 +1,7 @@
 import "./Main.css";
 
 import * as React from "react";
-import { useMemo } from "react";
+import { gql, useQuery } from "@apollo/client";
 
 export default function Main() {
   return (
@@ -63,7 +63,42 @@ export class HelloWorldDisplay extends React.PureComponent<Props> {
         </form>
         <br></br>
         <h2>Counter: {this.state.counter}</h2>
+        <ContactsComponent />
       </main>
     );
   }
 }
+
+interface ContactsData {
+  contacts: Contact[];
+}
+interface Contact {
+  resourcename: string;
+  name: string;
+  phone: string;
+  email: string;
+}
+const ContactsComponent = () => {
+  const { loading, error, data } = useQuery<ContactsData>(gql`
+    query foo {
+      contacts {
+        resourcename
+        name
+        phone
+        email
+      }
+    }
+  `);
+  return (
+    <div>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error :(</p>}
+      {data && (
+        <ul>
+          <li>{JSON.stringify(data.contacts[0])}</li>
+          <li>{JSON.stringify(data.contacts[1])}</li>
+        </ul>
+      )}
+    </div>
+  );
+};
