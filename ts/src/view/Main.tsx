@@ -10,7 +10,7 @@ import {
 
 const client = new ApolloClient({
   // uri: "https://play-stack.herokuapp.com/gql",
-  uri: "http://localhost:8080/gql",
+  uri: "http://localho.st:8080/gql",
   // uri: "/gql",
   cache: new InMemoryCache(),
 });

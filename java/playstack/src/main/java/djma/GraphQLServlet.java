@@ -57,16 +57,18 @@ public class GraphQLServlet extends HttpServlet {
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (env.isProd()) {
-            resp.setHeader("Access-Control-Allow-Origin", "https://play-stack.vercel.app");
-        } else {
-            resp.setHeader("Access-Control-Allow-Origin", "localhost:8000");
-        }
-        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-        resp.setHeader("Access-Control-Allow-Headers", req.getHeader("Access-Control-Request-Headers"));
-        resp.setHeader("Access-Control-Max-Age", "3600");
-        resp.setHeader("Access-Control-Allow-Credentials", "true");
+        setAccessControl(resp);
         resp.setStatus(200);
+    }
+
+    private void setAccessControl(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Request-Headers", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+        resp.setHeader("Access-Control-Allow-Payload", "true");
+        resp.setHeader("Access-Control-Request-Payload", "true");
     }
 
     @Override
@@ -76,16 +78,14 @@ public class GraphQLServlet extends HttpServlet {
 
     private void doGql(HttpServletRequest req, HttpServletResponse resp)
             throws JsonProcessingException, JsonMappingException, IOException {
-        if (env.isProd()) {
-            resp.setHeader("Access-Control-Allow-Origin", "https://play-stack.vercel.app");
-        } else {
-            resp.setHeader("Access-Control-Allow-Origin", "localhost:8000");
-        }
-        resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-        resp.setHeader("Access-Control-Allow-Headers", req.getHeader("Access-Control-Request-Headers"));
-        resp.setStatus(204);
+        setAccessControl(resp);
 
         String query = req.getParameter("query");
+        // if (query == null) {
+        // byte[] emptyresp = "{}".getBytes();
+        // resp.getOutputStream().write(emptyresp);
+        // return;
+        // }
         String operationName = req.getParameter("operationName");
         @SuppressWarnings("unchecked")
         Map<String, Object> variables = req.getParameter("variables") != null

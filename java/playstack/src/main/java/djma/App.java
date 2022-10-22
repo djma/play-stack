@@ -2,8 +2,7 @@ package djma;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
@@ -31,12 +30,21 @@ public class App {
         handler.addServletWithMapping(SampleServlet.class, "/*");
         handler.addServletWithMapping(GraphQLServlet.class, "/gql/*");
 
-        FilterHolder filterHolder = new FilterHolder(new CrossOriginFilter());
-        filterHolder.setInitParameter("allowedOrigins", "localhost:8000");
-        filterHolder.setInitParameter("allowedMethods", "GET, POST");
-        handler.addFilter(null);
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.setHandler(handler);
+        gzipHandler.setIncludedMethods("POST", "GET");
+        gzipHandler.setIncludedMimeTypes(
+                "text/html",
+                "text/plain",
+                "text/xml",
+                "text/json",
+                "application/json",
+                "text/css",
+                "application/javascript",
+                "text/javascript");
+        gzipHandler.setInflateBufferSize(2048);
         try {
-            server.setHandler(handler);
+            server.setHandler(gzipHandler);
             server.start();
             server.join();
         } catch (Exception e) {
