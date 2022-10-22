@@ -1,7 +1,6 @@
 type Query {
   hello: String
   contacts: [Contact!]!
-  contactsRaw: String
 }
 
 type Contact {
