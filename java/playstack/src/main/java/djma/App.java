@@ -29,22 +29,8 @@ public class App {
         ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(SampleServlet.class, "/*");
         handler.addServletWithMapping(GraphQLServlet.class, "/gql/*");
-
-        GzipHandler gzipHandler = new GzipHandler();
-        gzipHandler.setHandler(handler);
-        gzipHandler.setIncludedMethods("POST", "GET");
-        gzipHandler.setIncludedMimeTypes(
-                "text/html",
-                "text/plain",
-                "text/xml",
-                "text/json",
-                "application/json",
-                "text/css",
-                "application/javascript",
-                "text/javascript");
-        gzipHandler.setInflateBufferSize(2048);
         try {
-            server.setHandler(gzipHandler);
+            server.setHandler(handler);
             server.start();
             server.join();
         } catch (Exception e) {
