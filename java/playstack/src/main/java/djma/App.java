@@ -29,8 +29,12 @@ public class App {
         handler.addServletWithMapping(SampleServlet.class, "/*");
         handler.addServletWithMapping(GraphQLServlet.class, "/gql/*");
         handler.addServletWithMapping(AuthServlet.class, "/auth/*");
+
+        AuthHandler authHandler = new AuthHandler();
+        authHandler.setHandler(handler);
         try {
-            server.setHandler(handler);
+            // server.setHandler(handler);
+            server.setHandler(authHandler); // Turn on auth for gql
             server.start();
             server.join();
         } catch (Exception e) {

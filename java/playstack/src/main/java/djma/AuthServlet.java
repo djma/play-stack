@@ -2,7 +2,6 @@ package djma;
 
 import java.io.IOException;
 import java.security.SignatureException;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -13,6 +12,8 @@ import org.web3j.crypto.Sign;
 import org.web3j.utils.Numeric;
 
 import djma.common.Env;
+import djma.db.AuthService;
+import djma.db.AuthService.Session;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
@@ -34,11 +35,8 @@ import static djma.common.Common.simpleObjectMapper;
  * 
  */
 public class AuthServlet extends HttpServlet {
-    // private final DB db = DB.get();
     private final Env env = Env.get();
-
-    private final Map<UUID, String> authTokenToAddress = new HashMap<>();
-    private final Map<UUID, Instant> nonceCreationTime = new HashMap<>();
+    private final AuthService authSvc = AuthService.get();
 
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -53,7 +51,6 @@ public class AuthServlet extends HttpServlet {
         // Java 18 can match on null case
         // https://stackoverflow.com/questions/10332132/how-to-use-null-in-switch
         switch (ifNull(pathInfo, "default")) {
-            case "/nonce" -> nonce(req, resp);
             case "/logout" -> logout(req, resp);
             default -> resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         }
@@ -65,6 +62,7 @@ public class AuthServlet extends HttpServlet {
         String pathInfo = req.getPathInfo();
 
         switch (ifNull(pathInfo, "default")) {
+            case "/nonce" -> nonce(req, resp);
             case "/verify" -> verify(req, resp);
             case "/me" -> me(req, resp);
             default -> resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -74,29 +72,31 @@ public class AuthServlet extends HttpServlet {
     private void verify(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Map<String, Object> body = getBodyJson(req);
 
-        // Validate signature
         String address = normalizePublicAddress((String) body.get("address"));
         String message = (String) body.get("message");
         String signature = (String) body.get("signature");
 
         String recoveredAddress = normalizePublicAddress(getAddressUsedToSignHashedMessage(signature, message));
+
+        // Validate signature, nonce, and address
         if (recoveredAddress == null || !recoveredAddress.equals(address)) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        // Validate nonce
-        String nonce = message;
-        if (!nonceCreationTime.containsKey(UUID.fromString(nonce))) {
+        UUID nonce = UUID.fromString(message);
+        Session session = authSvc.getSessionFromNonce(nonce);
+
+        if (session == null) {
             System.out.println("Nonce not found: " + nonce);
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        // Login the address with the nonce
-        // Give cookie
-        UUID authToken = UUID.randomUUID();
-        authTokenToAddress.put(authToken, address);
+        // Login the address with the nonce. Give cookie
+        // Currently unused. Don't know how to have the front-end keep the cookie.
+        // Probably because Access-Control-Allow-Origin is * in local dev.
+        UUID authToken = session.authToken();
         System.out.println("Logged in " + address + " with authToken " + authToken);
         Cookie cookie = new Cookie("authToken", authToken.toString());
         cookie.setMaxAge(60 * 60 * 24 * 1); // 1 day
@@ -111,10 +111,11 @@ public class AuthServlet extends HttpServlet {
     }
 
     private void nonce(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        UUID nonce = generateNonce();
+        Map<String, Object> body = getBodyJson(req);
         // req.getSession().setAttribute("nonce", nonce); // requires session manager
 
-        nonceCreationTime.put(nonce, Instant.now());
+        String address = normalizePublicAddress((String) body.get("address"));
+        UUID nonce = authSvc.createSessionForEthAddress(address).nonce();
         System.out.println("Saving nonce: " + nonce);
         resp.setHeader("Content-Type", "text/plain");
         resp.getWriter().print(nonce);
@@ -134,6 +135,8 @@ public class AuthServlet extends HttpServlet {
     }
 
     private void me(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // Currently unused. Don't know how to have the front-end keep the cookie.
+        // Probably because Access-Control-Allow-Origin is * in local dev.
         Cookie[] cookies = ifNull(req.getCookies(), new Cookie[0]);
         String authToken = null;
         for (Cookie cookie : cookies) {
@@ -149,17 +152,14 @@ public class AuthServlet extends HttpServlet {
         }
 
         HashMap<String, String> jsonResp = new HashMap<>();
-        jsonResp.put("address", optChain(authToken, at -> authTokenToAddress.get(UUID.fromString(at))));
+        jsonResp.put("address",
+                optChain(authToken, at -> authSvc.getSessionFromAuthToken(UUID.fromString(at)).address()));
         resp.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         byte[] respBytes = simpleObjectMapper.writeValueAsBytes(jsonResp);
         resp.getOutputStream().write(respBytes);
     }
 
     private void logout(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    }
-
-    private UUID generateNonce() {
-        return UUID.randomUUID();
     }
 
     /**

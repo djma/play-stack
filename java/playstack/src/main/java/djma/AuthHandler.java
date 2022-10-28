@@ -22,7 +22,7 @@ public class AuthHandler extends HandlerWrapper {
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
-        if (target.startsWith("/auth")) {
+        if (target.startsWith("/auth") || req.getMethod().equals("OPTIONS")) {
             super.handle(target, baseRequest, req, resp);
         } else {
             // String token = request.getHeader("Authorization"); // ??
@@ -43,9 +43,9 @@ public class AuthHandler extends HandlerWrapper {
                 authToken = (String) body.get("authToken");
             }
 
-            boolean isAuthorized = authSvc.isAuthorized(UUID.fromString(authToken));
+            boolean isAuthorized = authToken != null && authSvc.isAuthorized(UUID.fromString(authToken));
 
-            if (isAuthorized) {
+            if (!isAuthorized) {
                 resp.setStatus(401);
                 resp.getWriter().println("Unauthorized");
                 baseRequest.setHandled(true);

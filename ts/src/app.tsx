@@ -64,7 +64,13 @@ function SignInButton({
 
   const fetchNonce = async () => {
     try {
-      const nonceRes = await fetch(serverUrl + "/auth/nonce");
+      const nonceRes = await fetch(serverUrl + "/auth/nonce", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address }),
+      });
       const nonce = await nonceRes.text();
       setState((x) => ({ ...x, nonce }));
     } catch (error) {

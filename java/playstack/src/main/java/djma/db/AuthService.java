@@ -36,25 +36,21 @@ public class AuthService {
         return INSTANCE;
     }
 
-    public boolean isSessionActive(UUID nonce) {
-        return nonceToSession.containsKey(nonce);
+    public Session getSessionFromNonce(UUID nonce) {
+        return nonceToSession.get(nonce);
     }
 
-    public Session createSession(String address) {
+    public Session getSessionFromAuthToken(UUID authToken) {
+        return authTokenToSession.get(authToken);
+    }
+
+    public Session createSessionForEthAddress(String address) {
         UUID nonce = UUID.randomUUID();
         UUID authToken = UUID.randomUUID();
         Session newSession = new Session(nonce, authToken, address, Instant.now());
         nonceToSession.put(nonce, newSession);
         authTokenToSession.put(authToken, newSession);
         return newSession;
-    }
-
-    public String getAddressFromAuthToken(UUID authToken) {
-        return authTokenToSession.get(authToken).address;
-    }
-
-    public UUID getAuthTokenFromNonce(UUID nonce) {
-        return nonceToSession.get(nonce).authToken;
     }
 
     public boolean isAuthorized(UUID authToken) {

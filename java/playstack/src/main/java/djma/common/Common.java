@@ -104,6 +104,9 @@ public class Common {
 
     @SuppressWarnings("unchecked")
     public static Map<String, Object> getBodyJson(HttpServletRequest req) throws IOException {
+        if (req.getContentType() == null || !req.getContentType().contains("application/json")) {
+            throw new IllegalArgumentException("Content-Type must be application/json");
+        }
         return simpleObjectMapper.readValue(getBody(req), Map.class);
     }
 
