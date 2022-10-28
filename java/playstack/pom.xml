@@ -132,6 +132,18 @@
       <artifactId>graphql-java</artifactId>
       <version>19.2</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.web3j/crypto -->
+    <dependency>
+      <groupId>org.web3j</groupId>
+      <artifactId>crypto</artifactId>
+      <version>5.0.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.web3j/utils -->
+    <dependency>
+      <groupId>org.web3j</groupId>
+      <artifactId>utils</artifactId>
+      <version>5.0.0</version>
+    </dependency>
   </dependencies>
 
   <build>

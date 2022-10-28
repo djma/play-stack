@@ -64,6 +64,7 @@ export class HelloWorldDisplay extends React.PureComponent<Props> {
         <br></br>
         <h2>Counter: {this.state.counter}</h2>
         <ContactsComponent />
+        <br></br>
       </main>
     );
   }

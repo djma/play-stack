@@ -2,7 +2,6 @@ package djma;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
@@ -29,6 +28,7 @@ public class App {
         ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(SampleServlet.class, "/*");
         handler.addServletWithMapping(GraphQLServlet.class, "/gql/*");
+        handler.addServletWithMapping(AuthServlet.class, "/auth/*");
         try {
             server.setHandler(handler);
             server.start();
