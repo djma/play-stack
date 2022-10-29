@@ -31,7 +31,7 @@ createRoot(root).render(<App />);
 const client = new ApolloClient({
   credentials: "include",
   link: createHttpLink({
-    uri: serverUrl + "/graphql",
+    uri: serverUrl + "/gql",
     credentials: "include",
   }),
   cache: new InMemoryCache(),
