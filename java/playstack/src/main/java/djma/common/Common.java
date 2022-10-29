@@ -1,7 +1,10 @@
 package djma.common;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.jooq.impl.TableRecordImpl;
 
@@ -13,6 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Temporary home for common functions.
@@ -91,6 +96,18 @@ public class Common {
      */
     public static <A, B> B optChain(A nullable, Function<A, B> func) {
         return optChain(nullable, null, func);
+    }
+
+    public static String getBody(HttpServletRequest req) throws IOException {
+        return req.getReader().lines().collect(Collectors.joining());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> getBodyJson(HttpServletRequest req) throws IOException {
+        if (req.getContentType() == null || !req.getContentType().contains("application/json")) {
+            throw new IllegalArgumentException("Content-Type must be application/json");
+        }
+        return simpleObjectMapper.readValue(getBody(req), Map.class);
     }
 
 }

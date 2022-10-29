@@ -64,6 +64,7 @@ export class HelloWorldDisplay extends React.PureComponent<Props> {
         <br></br>
         <h2>Counter: {this.state.counter}</h2>
         <ContactsComponent />
+        <br></br>
       </main>
     );
   }
@@ -79,16 +80,19 @@ interface Contact {
   email: string;
 }
 const ContactsComponent = () => {
-  const { loading, error, data } = useQuery<ContactsData>(gql`
-    query foo {
-      contacts {
-        resourcename
-        name
-        phone
-        email
+  const { loading, error, data } = useQuery<ContactsData>(
+    gql`
+      query foo {
+        contacts {
+          resourcename
+          name
+          phone
+          email
+        }
       }
-    }
-  `);
+    `,
+    { pollInterval: 10000, fetchPolicy: "no-cache" }
+  );
   return (
     <div>
       {loading && <p>Loading...</p>}

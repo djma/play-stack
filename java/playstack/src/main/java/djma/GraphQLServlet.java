@@ -1,11 +1,11 @@
 package djma;
 
+import static djma.common.Common.getBodyJson;
 import static djma.common.Common.simpleObjectMapper;
 import static graphql.schema.idl.RuntimeWiring.newRuntimeWiring;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.http.entity.ContentType;
 
@@ -65,6 +65,7 @@ public class GraphQLServlet extends HttpServlet {
         }
         resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
     }
 
     @Override
@@ -89,8 +90,7 @@ public class GraphQLServlet extends HttpServlet {
     @SuppressWarnings("unchecked")
     private void doGql(HttpServletRequest req, HttpServletResponse resp)
             throws JsonProcessingException, JsonMappingException, IOException {
-        String reqBody = req.getReader().lines().collect(Collectors.joining());
-        Map<String, Object> gqlRequest = simpleObjectMapper.readValue(reqBody, Map.class);
+        Map<String, Object> gqlRequest = getBodyJson(req);
         String query = gqlRequest.get("query").toString();
         String operationName = gqlRequest.get("operationName").toString();
 
