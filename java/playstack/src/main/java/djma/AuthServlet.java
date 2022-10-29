@@ -100,6 +100,7 @@ public class AuthServlet extends HttpServlet {
         System.out.println("Logged in " + address + " with authToken " + authToken);
         Cookie cookie = new Cookie("authToken", authToken.toString());
         cookie.setMaxAge(60 * 60 * 24 * 1); // 1 day
+        cookie.setPath("/");
         resp.addCookie(cookie);
 
         HashMap<String, Object> jsonResp = new HashMap<>();
@@ -125,13 +126,13 @@ public class AuthServlet extends HttpServlet {
         if (env.isProd()) {
             resp.setHeader("Access-Control-Allow-Origin", "https://play-stack.vercel.app");
             resp.setHeader("Access-Control-Request-Headers", "https://play-stack.vercel.app");
+            resp.setHeader("Access-Control-Allow-Credentials", "true");
         } else {
             resp.setHeader("Access-Control-Allow-Origin", "*");
             resp.setHeader("Access-Control-Request-Headers", "*");
         }
         resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        resp.setHeader("Access-Control-Allow-Credentials", "true");
     }
 
     private void me(HttpServletRequest req, HttpServletResponse resp) throws IOException {

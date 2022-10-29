@@ -59,13 +59,13 @@ public class GraphQLServlet extends HttpServlet {
         if (env.isProd()) {
             resp.setHeader("Access-Control-Allow-Origin", "https://play-stack.vercel.app");
             resp.setHeader("Access-Control-Request-Headers", "https://play-stack.vercel.app");
+            resp.setHeader("Access-Control-Allow-Credentials", "true");
         } else {
             resp.setHeader("Access-Control-Allow-Origin", "*");
             resp.setHeader("Access-Control-Request-Headers", "*");
         }
         resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        resp.setHeader("Access-Control-Allow-Credentials", "true");
     }
 
     @Override

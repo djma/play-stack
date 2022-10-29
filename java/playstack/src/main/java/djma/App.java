@@ -33,8 +33,8 @@ public class App {
         AuthHandler authHandler = new AuthHandler();
         authHandler.setHandler(handler);
         try {
-            // server.setHandler(handler);
-            server.setHandler(authHandler); // Turn on auth for gql
+            server.setHandler(handler);
+            // server.setHandler(authHandler); // Turn on auth for gql
             server.start();
             server.join();
         } catch (Exception e) {

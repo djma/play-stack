@@ -22,6 +22,7 @@ import { publicProvider } from "wagmi/providers/public";
 
 import Main from "./view/Main";
 
+// const serverUrl = "http://127.0.0.1:8080";
 // const serverUrl = "http://localho.st:8080";
 const serverUrl = "https://play-stack.herokuapp.com";
 
@@ -121,6 +122,7 @@ function SignInButton({
 
       const jsonResp = await verifyRes.json();
 
+      document.cookie = `authToken=${jsonResp.authToken}; path=/; SameSite=Lax; Secure`;
       const authToken = jsonResp.authToken;
       console.log("setting authToken ", authToken);
       setState((x) => ({ ...x, loading: false }));

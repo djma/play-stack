@@ -37,7 +37,7 @@ public class PeopleQuickstart {
      * If modifying these scopes, delete your previously saved tokens/ folder.
      */
     private static final List<String> SCOPES = Arrays.asList(PeopleServiceScopes.CONTACTS_READONLY);
-    private static final String CREDENTIALS_FILE_PATH = "client_secret.json";
+    private static final String CREDENTIALS_FILE_PATH = "../client_secret.json";
 
     /**
      * Creates an authorized Credential object.

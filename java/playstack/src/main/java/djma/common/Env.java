@@ -23,15 +23,17 @@ public class Env {
         if (INSTANCE == null) {
             INSTANCE = new Env();
 
-            INSTANCE.env.put("isProd", "true");
             INSTANCE.env.putAll(System.getenv());
 
             DotenvBuilder configure = Dotenv.configure();
             configure.ignoreIfMissing().load().entries().forEach((e) -> {
+                System.out.println("Env: " + e.getKey() + " = " + e.getValue());
                 INSTANCE.env.put(e.getKey(), e.getValue());
-                INSTANCE.env.put("isProd", "false");
             });
+
+            INSTANCE.env.put("isProd", INSTANCE.env.containsKey("DYNO") ? "true" : "false");
         }
+        System.out.println("isProd " + INSTANCE.env.get("isProd"));
         return INSTANCE;
     }
 
