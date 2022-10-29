@@ -131,7 +131,7 @@ public class AuthServlet extends HttpServlet {
         }
         resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        // resp.setHeader("Access-Control-Allow-Credentials", "true");
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
     }
 
     private void me(HttpServletRequest req, HttpServletResponse resp) throws IOException {

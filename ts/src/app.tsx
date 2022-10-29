@@ -1,6 +1,11 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloProvider,
+  createHttpLink,
+  InMemoryCache,
+} from "@apollo/client";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import {
@@ -17,14 +22,18 @@ import { publicProvider } from "wagmi/providers/public";
 
 import Main from "./view/Main";
 
-const serverUrl = "http://localho.st:8080";
-// const serverUrl = "https://play-stack.herokuapp.com";
+// const serverUrl = "http://localho.st:8080";
+const serverUrl = "https://play-stack.herokuapp.com";
 
 const root = document.querySelector("#root")!;
 createRoot(root).render(<App />);
 
 const client = new ApolloClient({
-  uri: serverUrl + "/gql",
+  credentials: "include",
+  link: createHttpLink({
+    uri: serverUrl + "/graphql",
+    credentials: "include",
+  }),
   cache: new InMemoryCache(),
 });
 

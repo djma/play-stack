@@ -80,16 +80,19 @@ interface Contact {
   email: string;
 }
 const ContactsComponent = () => {
-  const { loading, error, data } = useQuery<ContactsData>(gql`
-    query foo {
-      contacts {
-        resourcename
-        name
-        phone
-        email
+  const { loading, error, data } = useQuery<ContactsData>(
+    gql`
+      query foo {
+        contacts {
+          resourcename
+          name
+          phone
+          email
+        }
       }
-    }
-  `);
+    `,
+    { pollInterval: 10000, fetchPolicy: "no-cache" }
+  );
   return (
     <div>
       {loading && <p>Loading...</p>}

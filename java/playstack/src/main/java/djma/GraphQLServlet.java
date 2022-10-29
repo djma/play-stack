@@ -65,6 +65,7 @@ public class GraphQLServlet extends HttpServlet {
         }
         resp.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
     }
 
     @Override
