@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.http.entity.ContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Keys;
 import org.web3j.crypto.Sign;
 import org.web3j.utils.Numeric;
@@ -35,6 +37,7 @@ import static djma.common.Common.simpleObjectMapper;
  * 
  */
 public class AuthServlet extends HttpServlet {
+    private static final Logger LOG = LoggerFactory.getLogger(AuthServlet.class);
     private final Env env = Env.get();
     private final AuthService authSvc = AuthService.get();
 
@@ -88,7 +91,7 @@ public class AuthServlet extends HttpServlet {
         Session session = authSvc.getSessionFromNonce(nonce);
 
         if (session == null) {
-            System.out.println("Nonce not found: " + nonce);
+            LOG.info("Nonce not found: " + nonce);
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -97,7 +100,7 @@ public class AuthServlet extends HttpServlet {
         // Currently unused. Don't know how to have the front-end keep the cookie.
         // Probably because Access-Control-Allow-Origin is * in local dev.
         UUID authToken = session.authToken();
-        System.out.println("Logged in " + address + " with authToken " + authToken);
+        LOG.info("Logged in " + address + " with authToken " + authToken);
         Cookie cookie = new Cookie("authToken", authToken.toString());
         cookie.setMaxAge(60 * 60 * 24 * 1); // 1 day
         cookie.setPath("/");
@@ -117,7 +120,7 @@ public class AuthServlet extends HttpServlet {
 
         String address = normalizePublicAddress((String) body.get("address"));
         UUID nonce = authSvc.createSessionForEthAddress(address).nonce();
-        System.out.println("Saving nonce: " + nonce);
+        LOG.info("Saving nonce: " + nonce);
         resp.setHeader("Content-Type", "text/plain");
         resp.getWriter().print(nonce);
     }

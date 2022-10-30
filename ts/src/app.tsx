@@ -122,7 +122,6 @@ function SignInButton({
 
       const jsonResp = await verifyRes.json();
 
-      document.cookie = `authToken=${jsonResp.authToken}; path=/; SameSite=Lax; Secure`;
       const authToken = jsonResp.authToken;
       console.log("setting authToken ", authToken);
       setState((x) => ({ ...x, loading: false }));

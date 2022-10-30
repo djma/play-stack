@@ -6,6 +6,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication;
 import com.google.api.client.auth.oauth2.Credential;
@@ -36,6 +39,7 @@ import static djma.db.generated.tables.Contact.CONTACT;
 public class ContactSyncService {
     private static ContactSyncService INSTANCE;
 
+    private static final Logger LOG = LoggerFactory.getLogger(ContactSyncService.class);
     private static final String APPLICATION_NAME = "Google People API Java Quickstart";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String CONTACT_SYNC_TOKEN_KEY = "contact_sync_token";
@@ -109,7 +113,7 @@ public class ContactSyncService {
                     .setRequestSyncToken(true)
                     .setPersonFields("metadata,names,emailAddresses,phoneNumbers");
             if (syncToken != null) {
-                System.out.println("Syncing contacts using sync token: " + syncToken);
+                LOG.info("Syncing contacts using sync token: {}", syncToken);
                 contactSyncRequest.setSyncToken(syncToken);
             }
             contactSyncResponse = contactSyncRequest.execute();
@@ -138,7 +142,7 @@ public class ContactSyncService {
     }
 
     private void saveSyncToken(String nextSyncToken) {
-        System.out.println("Saving sync token: " + nextSyncToken);
+        LOG.info("Saving sync token: {}", nextSyncToken);
         kvStore.set(CONTACT_SYNC_TOKEN_KEY, nextSyncToken);
     }
 
@@ -149,7 +153,7 @@ public class ContactSyncService {
     private void handlePerson(Person person) {
         if (ifNull(person.getMetadata().getDeleted(), false)) {
             // Handle deleted person
-            System.out.println("Deleted person: " + person.getResourceName());
+            LOG.info("Deleted person: {}", person.getResourceName());
             db.run(ctx -> {
                 return ctx.deleteFrom(CONTACT)
                         .where(CONTACT.RESOURCENAME.eq(person.getResourceName()))
@@ -158,7 +162,7 @@ public class ContactSyncService {
         } else {
             // Handle changed person
             ContactRecord c = personToContactRecord(person);
-            System.out.println(c.toString());
+            LOG.info(c.toString());
             db.run(ctx -> {
                 return ctx.insertInto(CONTACT)
                         .set(c)

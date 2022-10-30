@@ -11,6 +11,8 @@ import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -20,6 +22,7 @@ import static djma.db.generated.tables.Contact.CONTACT;
 
 public class DB {
     private static DB INSTANCE = null;
+    private static final Logger LOG = LoggerFactory.getLogger(DB.class);
 
     public HikariDataSource source;
 
@@ -35,7 +38,7 @@ public class DB {
         String dbUrl = env.get("DATABASE_URL");
         Matcher dbUrlMatcher = Pattern.compile("([^:]+)://([^:]+):([^@]+)@([^:]+):([0-9]+)/(.+)").matcher(dbUrl);
         if (!dbUrlMatcher.find()) {
-            System.out.println(
+            LOG.error(
                     "Invalid DATABASE_URL. Must be in the form: <dbtype>://<user>:<password>@<host>:<port>/<database>");
             return;
         }
